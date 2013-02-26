@@ -1,18 +1,22 @@
-Attribute VB_Name = "ModTabletoList"
+Attribute VB_Name = "mod_TabletoList"
 '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 '
 'Function Name:     f_TableToList               Author:            tommaho
-'Create Date:       2-18-2013                   Last Revision:
+'Create Date:       2-18-2013                   Last Revision:      2-25-2013
 '
 'Description:       Converts a multi-column excel table to a single column
 '                   list.
 '
 'Definition:
 '   f_TableToList(
-'           SourceSheet as Worksheet,   <* sheet containing table
-'           SourceRange as Range,       <* range to be transformed
-'           DestSheet as Worksheet,     <* worksheet to place list
-'           DestCell as Range           <* range to start list
+'           Optional SourceSheet as Worksheet,   <* sheet containing table,
+'                                                   defaults to activesheet
+'           Optional SourceRange as Range,       <* range to be transformed
+'                                                   defaults to selection
+'           Optional DestSheet as Worksheet,     <* worksheet to place list,
+'                                                   defaults to a new sheet
+'           Optional DestCell as Range           <* range to start list,
+'                                                   defaults to A1
 '           ) as Boolean
 '
 'Typical Usage:
@@ -28,14 +32,23 @@ Attribute VB_Name = "ModTabletoList"
 '   It's the users responsibility to make sure the destination sheet and range are
 '   clear and ready to receive the transformed output
 '
+'   2-25-13 Revision: made all arguments optional with defaults
+'
 '
 '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
-Public Function f_TableToList(SourceSheet As Worksheet, _
-                                SourceRange As Range, _
-                                DestSheet As Worksheet, _
-                                DestCell As Range) As Boolean
+Public Function f_TabletoList(Optional SourceSheet As Variant, _
+                                Optional SourceRange As Variant, _
+                                Optional DestSheet As Variant, _
+                                Optional DestCell As Variant) As Boolean
     On Error GoTo ErrHandler
+    If IsMissing(SourceSheet) = True Then
+        Set SourceSheet = ActiveSheet
+    End If
+    
+    If IsMissing(SourceRange) = True Then
+        Set SourceRange = Selection
+    End If
     
     Application.ScreenUpdating = False
     
@@ -60,6 +73,15 @@ Public Function f_TableToList(SourceSheet As Worksheet, _
     startCell.Activate
     
     'Unload the array
+    
+    If IsMissing(DestSheet) = True Then
+        Set DestSheet = Sheets.Add
+    End If
+    
+    If IsMissing(DestCell) = True Then
+        Set DestCell = DestSheet.Range("A1")
+    End If
+    
     DestSheet.Activate
     DestCell.Activate
         
@@ -78,7 +100,7 @@ Public Function f_TableToList(SourceSheet As Worksheet, _
     SourceSheet.Activate
     startCell.Activate
     
-    f_TableToList = True
+    f_TabletoList = True
     Application.ScreenUpdating = True
     
     Exit Function
@@ -86,6 +108,8 @@ Public Function f_TableToList(SourceSheet As Worksheet, _
 ErrHandler:
     MsgBox ("An error has occurred: " & Err.Description)
     Erase tableArray
-    f_TableToList = False
+    f_TabletoList = False
     Application.ScreenUpdating = True
 End Function
+
+
